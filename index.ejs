@@ -1,0 +1,80 @@
+<!-- views/index.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TODO task App</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <h1>TODO APP</h1>
+
+  <h2>Create a New task</h2>
+  <form action="/create-list" method="POST" class="form1">
+    <input type="text" name="listName" placeholder="Enter task name" required>
+    <input type="text" name="listDescription" placeholder="Enter task description" required>
+    <input type="text" name="listType" placeholder="Enter task type" required>
+    <!-- <input type="date" name="dueDate"> -->
+    <input type="date" name="dueDate" min="<%= (new Date()).toISOString().split('T')[0] %>" required>
+    <button type="submit" class="button"><i class="fas fa-address-book"></i>
+      Create</button>
+  </form>
+
+  <h2>All Lists</h2>
+  <% if (lists && lists.length > 0) { %>
+    <form action="/delete-selected-lists" method="POST">
+      <ul>
+        <% lists.forEach(list => { %>
+          <li>
+            <label>
+              <input type="checkbox" name="selectedLists" value="<%= list._id %>">
+              <h3><%= list.name %></h3>
+              <p>Description: <%= list.description %></p>
+              <p>Type: <%= list.type %></p>
+              <p>Created At: <%= list.createdAt.toISOString().slice(0, 10) %></p>
+            </label>
+            <% if (list.tasks && list.tasks.length > 0) { %>
+              <ul>
+                <% list.tasks.forEach(task => { %>
+                  <li>
+                    <h4><%= task.name %></h4>
+                    <p>Due: <%= task.dueDate ? task.dueDate.toISOString().slice(0, 10) : "No due date" %></p>
+                    <p>Checklist:</p>
+                    <ul>
+                      <% task.checklist.forEach(item => { %>
+                        <li><%= item %></li>
+                      <% }) %>
+                    </ul>
+                    <p>Labels: <%= task.labels.join(', ') %></p>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } else { %>
+              <p>No tasks yet</p>
+            <% } %>
+          </li>
+        <% }) %>
+      </ul>
+      <button type="submit">Delete Selected Lists</button>
+    </form>
+  <% } else { %>
+    <p>No lists yet</p>
+  <% } %>
+
+  <script>
+    // Get today's date
+    const today = new Date();
+    // Subtract one day to get a past date
+    const pastDate = new Date(today);
+    pastDate.setDate(today.getDate() - 1);
+  
+    // Format the date to 'YYYY-MM-DD' format
+    const formattedPastDate = pastDate.toISOString().split('T')[0];
+  
+    // Set the minimum date for the input field
+    document.getElementById('listDate').min = formattedPastDate;
+  </script>
+</body>
+</html>
